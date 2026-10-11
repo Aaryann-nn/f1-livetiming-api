@@ -19,6 +19,7 @@ const HANDSHAKE_MESSAGE = `{"protocol":"json","version":1}${RECORD_SEP}`;
 const SUBSCRIBE_CHANNELS = [
     'TimingData',
     'TimingDataF1',
+    'Position.z',
     'TimingAppData',
     'DriverList',
     'SessionInfo',
@@ -38,6 +39,7 @@ class F1LiveClient {
         // Global State Cache preserving exact SignalR Core PascalCase structure and fields
         this.timingData = { Lines: {} };
         this.driverList = {};
+        this.positionData = {};
         this.timingAppData = { Lines: {} };
         this.weather = {};
         this.session = {};
@@ -248,6 +250,13 @@ class F1LiveClient {
         const data = typeof dataStr === 'string' ? JSON.parse(dataStr) : dataStr;
 
         switch (channel) {
+            case 'Position.z':
+    deepMerge(this.positionData, data);
+    this.broadcast({
+        type: 'Position.z',
+        data: this.positionData
+    });
+    break;
             case 'DriverList':
                 deepMerge(this.driverList, data);
                 this.broadcast({ type: 'DriverList', data: this.driverList });
@@ -294,7 +303,9 @@ class F1LiveClient {
     getTimingData() {
         return this.timingData;
     }
-
+getPositionData() {
+    return this.positionData;
+}
     getDriverList() {
         return this.driverList;
     }
