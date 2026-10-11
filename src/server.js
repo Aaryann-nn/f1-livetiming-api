@@ -47,6 +47,14 @@ app.use('/api', createSessionRouter(f1Client));
  * GET /api/status
  * Returns WebSocket connection state, uptime, and last received message timestamp.
  */
+// Live car positions for the circuit map
+app.get('/api/positions', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({
+        timestamp: new Date().toISOString(),
+        positions: f1Client.getPositionData()
+    });
+});
 app.get('/api/status', (req, res) => {
     const status = f1Client.getConnectionStatus();
     res.status(200).json({
